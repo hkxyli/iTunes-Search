@@ -1,0 +1,169 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>iTunes API</title>
+
+	<link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap.min.css">
+
+
+	<style type="text/css">
+		/* 60px to make the container go all the way to the bottom of the topbar */
+		body { padding-top: 60px; }
+
+		/* customize checkbox for -siteSearch section and set section title and keep label to bold*/
+		.gsc-resultsRoot-siteSearch .gsc-keeper { background: #E9E9E9; }
+
+	</style>
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+	<script type="text/javascript" src="../bootstrap/js/bootstrap.js"></script>
+
+	<script type="text/javascript">
+		function LookupApp()
+		{
+			
+			var params = {
+						id: $('input.search-query').val(), //'presentation', 
+						callback: 'iTunesSearchResultsHandler'
+					};
+
+			var params = urlEncode(params);
+			
+			//http://itunes.apple.com/search?term=presentation&entity=software
+			var url = 'http://itunes.apple.com/lookup?' + params;
+			var html = '<script src="' + url + '"><\/script>';
+			
+			jQuery('head').append(html);
+
+			html='<strong>url: </strong> <span>'+url+'</span> </br>';
+			$('.alert').html(html);
+		}
+		
+		function urlEncode(obj) 
+		{
+				var s = '';
+				for (var key in obj) {
+					s += encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]) + '&';
+				}
+				if (s.length > 0) {
+					s = s.substr(0, s.length - 1);
+				}
+
+				return (s);
+		}
+
+		function iTunesSearchResultsHandler(arg) 
+		{
+			var reslutsCount=arg.resultCount;
+			var results = arg.results;
+			// $('.alert').append(reslutsCount);
+			var html = '';
+			var remotePattern=new RegExp("remote");
+			var timerPattern=new RegExp("timer");
+			for (var i = 0; i < results.length; i++) 
+			{
+				var item = results[i];
+				html+='<tr>';
+				
+				html+='<td rowspan="2">'+(i+1)+'\t'+'<img src="'+item.artworkUrl60+'"></td>';//
+				
+				html+='<td>';
+				if(remotePattern.test(item.description))
+					html+='\t<span class="badge badge-success">Remote</span>';
+				if(timerPattern.test(item.description))
+						html+='\t<span class="badge badge-info">Timer</span>';
+				html+=item.trackName;
+				html+='</td>';
+
+				html+='<td>'+item.primaryGenreName+'</td>';
+				html+='<td>'+item.averageUserRating+'</td>';
+				html+='<td>'+item.userRatingCount+'</td>';
+				html+='<td>'+item.formattedPrice+'</td>';
+				html+='<td>'+item.sellerName+'</td>';
+
+				html+='</tr>';	
+
+				//trackViewUrl
+				html+='<tr>';
+				html+='<td colspan="7">Track View Url:<a href="'+item.trackViewUrl+'">'+item.trackViewUrl+'</a></td>';
+			    html+='</tr>';
+
+			    //Description
+				html+='<tr>';
+				html+='<td colspan="7">'+item.description+'</td>';
+			    html+='</tr>';
+
+				// //ipadScreenshotUrls
+				// var ipadScreenshotUrls=item.ipadScreenshotUrls;
+				// if(ipadScreenshotUrls.length!=0)
+				// {
+				// 	var l='';
+				// 	for(var j=0;j<ipadScreenshotUrls.length;j++)
+				// 	{
+				// 	l+='<li class="span3"><a href="#" class="thumbnail"><img src="'+ipadScreenshotUrls[j]+'" alt=""></a></li>'
+				// 	}
+				// 	html+='<tr> <td colspan="7"> <ul class="thumbnails">';
+				// 	html+=l;
+				// 	html+='</ul> </td> </tr>';
+				// }
+				
+			}
+			
+			$('div.search-result >table >tbody').html(html);
+
+		}		
+	</script>
+
+</head>
+	
+<body> <!-- onload='trigerSearch()' -->
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+			  	<a class="brand" href="#">iTunes API</a>
+	
+			    <div class="nav-collapse collapse">
+			    	<ul class="nav">
+			        	<li><a href="./iTunes_Search_API_All.html">Search</a></li>
+			        	<li class="active"><a href="./iTunes_Search_API_One.html">Lookup</a> </li>
+			        	<li><a href="#">More</a> </li>
+			    	</ul>
+			    </div><!--/.nav-collapse -->
+		 	</div>
+		</div>
+	</div>
+	
+	<div class="offset1">
+		<div class="form-search form-inline">
+	  		<div class="input-prepend">
+	  			<button type="submit" class="btn btn-info" onclick="LookupApp()">Lookup</button>
+	  			<input type="text" class="span2 search-query" placeholder="Track ID">
+	  		</div>
+		</div>
+		
+	</div>
+	<p></p>
+
+	<div class="search-result span11 offset1 ">
+		<div class='alert alert-info'></div>
+
+		<p><strong>* Avg R=Average User Rating  ;  Rate C=User Rating Count</strong></p>
+		
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th>#</th>
+					<th>Track Name</th>
+					<th>Genre</th>
+					<th>Avg R</th>
+					<th>Rate C</th>
+					<th>Price</th>
+					<th>Seller Name</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
